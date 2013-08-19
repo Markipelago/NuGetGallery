@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -12,6 +13,11 @@ namespace NuGetGallery
 
         public EditPackageVersionRequest(Package package, PackageEdit pendingMetadata)
         {
+            PackageId = package.PackageRegistration.Id;
+            PackageTitle = package.Title;
+            Version = package.Version;
+            HasPendingMetadata = (pendingMetadata != null);
+
             var metadata = pendingMetadata ?? new PackageEdit
             {
                 Authors = package.FlattenedAuthors,
@@ -39,8 +45,14 @@ namespace NuGetGallery
             VersionTitle = metadata.Title;
         }
 
-        // We won't show this in the UI, and we won't actually honor edits to it at the moment, by our current policy.
+        // Not part of the client edit request, just used for rendering the view
         public string LicenseUrl { get; set; }
+        public string PackageId { get; set; }
+        public string PackageTitle { get; set; }
+        public string Version { get; set; }
+        public bool HasPendingMetadata { get; set; }
+        public IList<Package> PackageVersions { get; set; }
+
 
         [StringLength(256)]
         [Display(Name = "Title")]
@@ -60,6 +72,7 @@ namespace NuGetGallery
 
         [DataType(DataType.MultilineText)]
         [Display(Name = "Description")]
+        [Required]
         public string Description { get; set; }
 
         [StringLength(256)]
@@ -71,6 +84,7 @@ namespace NuGetGallery
         [StringLength(512)]
         [Display(Name = "Authors (comma-separated list - e.g. 'Anna, Bob, Carl')")]
         [DataType(DataType.Text)]
+        [Required]
         public string Authors { get; set; }
 
         [StringLength(512)]

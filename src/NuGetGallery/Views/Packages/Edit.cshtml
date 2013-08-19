@@ -1,5 +1,5 @@
 ﻿@using System.Linq.Expressions
-@model EditPackageRequest
+@model EditPackageVersionRequest
 @{
     ViewBag.Title = "Editing: " + Model.PackageTitle + " " + Model.Version;
     ViewBag.Tab = "Packages";
@@ -55,41 +55,41 @@
                 });
             }
 
-            SetupInput('Edit_VersionTitle');
-            SetupInput('Edit_Description');
-            SetupInput('Edit_Summary');
-            SetupInput('Edit_IconUrl');
-            SetupInput('Edit_ProjectUrl');
-            SetupInput('Edit_Authors');
-            SetupInput('Edit_Copyright');
-            SetupInput('Edit_Tags');
-            SetupInput('Edit_ReleaseNotes');
+            SetupInput('VersionTitle');
+            SetupInput('Description');
+            SetupInput('Summary');
+            SetupInput('IconUrl');
+            SetupInput('ProjectUrl');
+            SetupInput('Authors');
+            SetupInput('Copyright');
+            SetupInput('Tags');
+            SetupInput('ReleaseNotes');
 
-            @if (!String.IsNullOrEmpty(Model.Edit.LicenseUrl))
+            @if (!String.IsNullOrEmpty(Model.LicenseUrl))
             {
                 <text>
-                SetupInput('Edit_RequiresLicenseAcceptance');
+                SetupInput('RequiresLicenseAcceptance');
 
                 // Fix our SetupInput function to work with RequiresLicenseAcceptance
                 // Set up the defaultValue property on the <select> element - which doesn't have a defaultValue defined by default for some reason
-                $("#Edit_RequiresLicenseAcceptance")[0].defaultValue = "@(Model.Edit.RequiresLicenseAcceptance ? "true" : "false")";
+                $("#RequiresLicenseAcceptance")[0].defaultValue = "@(Model.RequiresLicenseAcceptance ? "true" : "false")";
                 </text>
             }
 
-            $("#Edit_ProjectUrl").bind("focusin focusout", RunValidationForEvent);
-            $("#Edit_IconUrl").bind("focusin focusout", UpdateIconAndRunValidation);
+            $("#ProjectUrl").bind("focusin focusout", RunValidationForEvent);
+            $("#IconUrl").bind("focusin focusout", UpdateIconAndRunValidation);
 
-            $("#UndoEdit_IconUrl").click(function () {
-                var validator = $.data($("#Edit_IconUrl")[0].form, "validator");
-                validator.settings["onfocusout"].call(validator, $("#Edit_IconUrl")[0]);
+            $("#UndoIconUrl").click(function () {
+                var validator = $.data($("#IconUrl")[0].form, "validator");
+                validator.settings["onfocusout"].call(validator, $("#IconUrl")[0]);
             });
-            $("#UndoEdit_ProjectUrl").click(function () {
-                var validator = $.data($("#Edit_ProjectUrl")[0].form, "validator");
-                validator.settings["onfocusout"].call(validator, $("#Edit_ProjectUrl")[0]);
+            $("#UndoProjectUrl").click(function () {
+                var validator = $.data($("#ProjectUrl")[0].form, "validator");
+                validator.settings["onfocusout"].call(validator, $("#ProjectUrl")[0]);
             });
 
-            $("#UndoEdit_IconUrl").click(function () {
-                var x = $("#Edit_IconUrl")[0];
+            $("#UndoIconUrl").click(function () {
+                var x = $("#IconUrl")[0];
                 var newValue = x.value;
                 $('#IconUrl_Preview').remove();
                 if (newValue.trim().length) {
@@ -217,7 +217,7 @@
     }
 }
 
-@helper EditableField(string name, Expression<Func<EditPackageRequest, object>> func, bool link = false, bool pre = false)
+@helper EditableField(string name, Expression<Func<EditPackageVersionRequest, object>> func, bool link = false, bool pre = false)
 {
     var formid = ExpressionHelper.GetExpressionText(func).Replace(".", "_");
     object temp = func.Compile().Invoke(Model);
@@ -244,37 +244,37 @@
         @Html.ValidationSummary(true)
 
         <ul id="packageDetails" style="border-bottom: 1px solid gray; margin-bottom: 1em;">
-        @if (Model.Edit != null)
+        @if (Model != null)
         {
-            <li>@EditableField("Title", m => m.Edit.VersionTitle)</li>
-            <li>@EditableField("Description (a longer description)", m => m.Edit.Description)</li>
-            <li>@EditableField("Summary (visible in search results)", m => m.Edit.Summary)</li>
-            <li>@EditableField("Icon URL", m => m.Edit.IconUrl, link: true)</li>
-            <li>@EditableField("Project URL", m => m.Edit.ProjectUrl, link: true)</li>
-            <li>@EditableField("Authors (comma-separated list - example: 'Annie, Bob, Charlie')", m => m.Edit.Authors)</li>
-            <li>@EditableField("Copyright", m => m.Edit.Copyright)</li>
-            <li>@EditableField("Tags (space-separated keywords - example: 'CommandLine ASP.NET Proxies Scaffolding)", m => m.Edit.Tags)</li>
-            <li>@EditableField("Release Notes (for this version)", m => m.Edit.ReleaseNotes)</li>
+            <li>@EditableField("Title", m => m.VersionTitle)</li>
+            <li>@EditableField("Description (a longer description)", m => m.Description)</li>
+            <li>@EditableField("Summary (visible in search results)", m => m.Summary)</li>
+            <li>@EditableField("Icon URL", m => m.IconUrl, link: true)</li>
+            <li>@EditableField("Project URL", m => m..ProjectUrl, link: true)</li>
+            <li>@EditableField("Authors (comma-separated list - example: 'Annie, Bob, Charlie')", m => m.Authors)</li>
+            <li>@EditableField("Copyright", m => m.Copyright)</li>
+            <li>@EditableField("Tags (space-separated keywords - example: 'CommandLine ASP.NET Proxies Scaffolding)", m => m.Tags)</li>
+            <li>@EditableField("Release Notes (for this version)", m => m.ReleaseNotes)</li>
 
-            if (!String.IsNullOrEmpty(Model.Edit.LicenseUrl))
+            if (!String.IsNullOrEmpty(Model.LicenseUrl))
             {
                 <li>
                     <h4>Requires License Acceptance
                         @{
-                            var formid2 = "Edit_RequiresLicenseAcceptance";
+                            var formid2 = "RequiresLicenseAcceptance";
                             <button type="button" class="undo-button" id="@("Undo" + formid2)" style="display: none"><span class="icon-undo"></span></button>
                         }
                     </h4>
                     <div style="position: relative">
-                        <div id="Edit_RequiresLicenseAcceptanceField" style="width: 100%">
+                        <div id="RequiresLicenseAcceptanceField" style="width: 100%">
                             <div class="form-field" style="display: inline">
-                                @Html.DropDownList("Edit.RequiresLicenseAcceptance", 
+                                @Html.DropDownList("RequiresLicenseAcceptance", 
                                     new List<SelectListItem>
                                     {
                                         new SelectListItem { Text = "Yes", Value = "true" },
                                         new SelectListItem { Text = "No", Value = "false" },
                                     })
-                                @Html.ValidationMessageFor(model => model.Edit.RequiresLicenseAcceptance)
+                                @Html.ValidationMessageFor(model => model.RequiresLicenseAcceptance)
                             </div>
                         </div>
                     </div>

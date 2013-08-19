@@ -573,26 +573,20 @@ namespace NuGetGallery
             }
 
             var packageRegistration = _packageService.FindPackageRegistrationById(id);
-            var model = new EditPackageRequest
-            {
-                PackageId = package.PackageRegistration.Id,
-                PackageTitle = package.Title,
-                Version = package.Version,
-                PackageVersions = packageRegistration.Packages
-                    .OrderByDescending(p => new SemanticVersion(p.Version), Comparer<SemanticVersion>.Create((a, b) => a.CompareTo(b)))
-                    .ToList(),
-            };
-
             var pendingMetadata = _editPackageService.GetPendingMetadata(package);
-            model.HasPendingMetadata = pendingMetadata != null;
-            model.Edit = new EditPackageVersionRequest(package, pendingMetadata);
+            
+            var model = new EditPackageVersionRequest(package, pendingMetadata);
+            model.PackageVersions = packageRegistration.Packages
+                .OrderByDescending(p => new SemanticVersion(p.Version), Comparer<SemanticVersion>.Create((a, b) => a.CompareTo(b)))
+                .ToList();
+
             return View(model);
         }
 
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public virtual ActionResult Edit(string id, string version, EditPackageRequest formData)
+        public virtual ActionResult Edit(string id, string version, EditPackageVersionRequest formData)
         {
             var package = _packageService.FindPackageByIdAndVersion(id, version);
             if (package == null)
@@ -608,9 +602,9 @@ namespace NuGetGallery
             var user = _userService.FindByUsername(HttpContext.User.Identity.Name);
 
             // Add the edit request to a queue where it will be processed in the background.
-            if (formData.Edit != null)
+            if (formData != null)
             {
-                _editPackageService.StartEditPackageRequest(package, formData.Edit, user);
+                _editPackageService.StartEditPackageRequest(package, formData, user);
                 _entitiesContext.SaveChanges();
             }
             return Redirect(Url.Package(id, version));

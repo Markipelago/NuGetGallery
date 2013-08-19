@@ -622,7 +622,17 @@ namespace NuGetGallery
                     {
                         foreach (var error in ViewData.ModelState[key].Errors)
                         {
-                            errorMessage += error.ErrorMessage;
+                            // Workaround to fix up dumb-looking error messages from having field names with (explanation text) in them:
+                            // ---------------------------
+                            // The form could not be saved: The Description (a longer description) field is required.
+                            // ---------------------------
+                            var fixedStr = error.ErrorMessage;
+                            if (fixedStr.IndexOf("(") >= 0)
+                            {
+                                fixedStr = fixedStr.Substring(0, fixedStr.IndexOf("(")) + fixedStr.Substring(fixedStr.IndexOf(")")).TrimStart();
+                            }
+
+                            errorMessage += fixedStr;
                         }
                     }
 

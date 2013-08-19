@@ -10,6 +10,7 @@
 
 @section BottomScripts {
     @Scripts.Render("~/Scripts/jquery-ui-1.10.3.js")
+    @Scripts.Render("~/Scripts/jquery.form.js");
     <script>
         $(function () {
             function RunValidationForEvent(event) {
@@ -107,8 +108,17 @@
                 modal: true,
                 buttons: [{
                     text: "Save", click: function () {
-                        document.forms.EditForm.submit();
-                        window.location.href = href;
+                        // form.submit by AJAX so we can see if it succeeded or failed.
+                        $(document.forms.EditForm).ajaxSubmit({
+                            success: function (response) {
+                                // success - continue navigating
+                                window.location.href = href;
+                            },
+                            error: function (response) {
+                                // error - what went wrong?
+                                alert("The form could not be saved: " + response);
+                            }
+                        });
                     }
                 },
                 {

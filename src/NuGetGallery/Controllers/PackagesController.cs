@@ -261,6 +261,13 @@ namespace NuGetGallery
                 {
                     model.SetPendingMetadata(pendingMetadata);
                 }
+
+                // Response Header Cache-Control: no-cache, max-age=0, must-revalidate, no-store
+                // So that owners will always see the accurate state regarding whether the package is edited or not.
+                Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                Response.Cache.SetNoStore();
+                Response.Cache.SetMaxAge(TimeSpan.Zero);
+                Response.Cache.SetRevalidation(HttpCacheRevalidation.AllCaches);
             }
 
             ViewBag.FacebookAppID = _config.FacebookAppId;

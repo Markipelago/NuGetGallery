@@ -110,13 +110,14 @@
                     text: "Save", click: function () {
                         // form.submit by AJAX so we can see if it succeeded or failed.
                         $(document.forms.EditForm).ajaxSubmit({
+                            url: document.forms.EditForm.action + "Ajax",
                             success: function (response) {
                                 // success - continue navigating
                                 window.location.href = href;
                             },
                             error: function (response) {
                                 // error - what went wrong?
-                                alert("The form could not be saved: " + response);
+                                alert("The form could not be saved: " + response.responseText);
                             }
                         });
                     }

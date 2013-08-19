@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -586,7 +587,20 @@ namespace NuGetGallery
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public virtual ActionResult EditAjax(string id, string version, EditPackageVersionRequest formData)
+        {
+            return InternalPostEdit(id, version, formData, ajax: true);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public virtual ActionResult Edit(string id, string version, EditPackageVersionRequest formData)
+        {
+            return InternalPostEdit(id, version, formData, ajax: false);
+        }
+
+        private ActionResult InternalPostEdit(string id, string version, EditPackageVersionRequest formData, bool ajax)
         {
             var package = _packageService.FindPackageByIdAndVersion(id, version);
             if (package == null)
@@ -597,6 +611,28 @@ namespace NuGetGallery
             if (!package.IsOwner(HttpContext.User))
             {
                 return new HttpStatusCodeResult(403, "Forbidden");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                if (ajax)
+                {
+                    string errorMessage = "";
+                    foreach (var key in ViewData.ModelState.Keys)
+                    {
+                        foreach (var error in ViewData.ModelState[key].Errors)
+                        {
+                            errorMessage += error.ErrorMessage;
+                        }
+                    }
+
+                    return new HttpStatusCodeWithBodyResult(HttpStatusCode.BadRequest, "Bad Request", errorMessage);
+                }
+                else
+                {
+                    // For the case where javascript validation isn't working and server got a submit request directly.
+                    return Edit(id, version);
+                }
             }
 
             var user = _userService.FindByUsername(HttpContext.User.Identity.Name);

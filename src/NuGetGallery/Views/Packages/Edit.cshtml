@@ -113,17 +113,20 @@
                             url: document.forms.EditForm.action + "Ajax",
                             success: function (response) {
                                 // success - continue navigating
+                                $("#navigate-away-dialog").dialog("close");
                                 window.location.href = href;
                             },
                             error: function (response) {
                                 // error - what went wrong?
                                 alert("The form could not be saved: " + response.responseText);
+                                $("#navigate-away-dialog").dialog("close");
                             }
                         });
                     }
                 },
                 {
                     text: "Don't Save", click: function () {
+                        $("#navigate-away-dialog").dialog("close");
                         window.location.href = href;
                     }
                 },

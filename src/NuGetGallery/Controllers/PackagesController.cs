@@ -627,9 +627,11 @@ namespace NuGetGallery
                             // The form could not be saved: The Description (a longer description) field is required.
                             // ---------------------------
                             var fixedStr = error.ErrorMessage;
-                            if (fixedStr.IndexOf("(") >= 0)
+                            var left = fixedStr.IndexOf("(", StringComparison.InvariantCultureIgnoreCase);
+                            var right = fixedStr.IndexOf(")", StringComparison.InvariantCultureIgnoreCase);
+                            if (left >= 0)
                             {
-                                fixedStr = fixedStr.Substring(0, fixedStr.IndexOf("(")) + fixedStr.Substring(fixedStr.IndexOf(")")).TrimStart();
+                                fixedStr = fixedStr.Substring(0, left) + fixedStr.Substring(right).TrimStart();
                             }
 
                             errorMessage += fixedStr;
